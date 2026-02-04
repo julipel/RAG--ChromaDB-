@@ -20,6 +20,13 @@ chroma_db/
 # Кеш
 cache.json
 
+# База данных логов
+logs.db
+*.db
+
+# Временные CSV файлы логов
+logs_*.csv
+
 # IDE
 .vscode/
 .idea/
