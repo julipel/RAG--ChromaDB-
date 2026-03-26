@@ -117,35 +117,6 @@ python -c "import sqlite3,csv; conn=sqlite3.connect('logs.db'); cur=conn.cursor(
 start excel "logs_export.csv"
 ```
 
-## Последние изменения
-
-- Исправлена синтаксическая ошибка в `main.py` (кавычки в демо-вопросах про `Пардус-Р`).
-- Обновлены зависимости в локальном `.venv` для корректных импортов (`python-dotenv`, `chromadb` и др.).
-- Исправлена совместимость Telegram API: удален аргумент `quote=False` в `reply_text(...)`.
-- Обновлен текст `/start` под тематику `Пардус-Р`.
-- Обновлен текст `/help` в едином стиле под `Пардус-Р`.
-- Команды `/stats` и `/logs` убраны из отображаемого списка `/help`, но сохранены рабочими.
-- Уточнено, что для `logs.db` корректная таблица — `logs` (не `interactions`).
-
-## Частые проблемы
-
-- `ModuleNotFoundError: No module named 'dotenv'`  
-  Установите зависимости в нужное окружение:
-  ```powershell
-  .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-  ```
-
-- `No module named 'chromadb'`  
-  Запускайте проект тем же интерпретатором `.venv`:
-  ```powershell
-  .\.venv\Scripts\python.exe main.py
-  ```
-
-- В меню нет пункта Telegram-бота  
-  Проверьте, что в `.env` задан `TELEGRAM_BOT_TOKEN`.
-
-- `sqlite3 ... command not found` в PowerShell  
-  Используйте экспорт через Python (см. раздел выше).
 
 ## Безопасность
 
