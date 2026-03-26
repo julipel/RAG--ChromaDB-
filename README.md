@@ -42,7 +42,7 @@
 ## Подготовка окружения (Windows PowerShell)
 
 ```powershell
-cd "ваша директория"
+cd "C:\path\to\your\project"
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
