@@ -4,6 +4,9 @@
 Здесь мы создаем векторные представления текстов используя OpenAI API
 и сохраняем их в ChromaDB для быстрого семантического поиска.
 """
+__import__("pysqlite3")
+import sys
+sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 
 import chromadb
 from chromadb.config import Settings
