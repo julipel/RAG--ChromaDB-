@@ -23,10 +23,8 @@ SYSTEM_PROMPT = """Ты — консультант по портативному
 - При вопросах о безопасности и дозовой нагрузке будь особенно точен
 - Не давай клинических диагнозов и не заменяй консультацию врача-рентгенолога
 - Используй корректные медицинские и технические термины
-- В конце каждого ответа добавь блок «Источники».
-  Каждый фрагмент контекста начинается строкой вида [Фрагмент N | Источник: имя_файла.md].
-  Используй значение после «Источник:» как есть — это имя файла из метаданных чанка.
-  Перечисляй только те файлы, из которых ты реально использовал информацию."""
+- Не указывай источники и не упоминай, откуда взята информация
+- Не используй markdown-разметку (никаких звёздочек, решёток и других спецсимволов форматирования) — только обычный текст"""
 
 
 class RAGAssistant:
@@ -91,17 +89,6 @@ class RAGAssistant:
             )
         
         return "\n".join(context_parts)
-    
-    def _build_sources_footer(self, search_results: List[Tuple[str, str, float]]) -> str:
-        """Формирует блок со ссылками на документы, использованные при поиске."""
-        seen = []
-        for _, source, _ in search_results:
-            if source not in seen:
-                seen.append(source)
-        if not seen:
-            return ""
-        lines = "\n".join(f"• {source}" for source in seen)
-        return f"\n\n📎 Источники:\n{lines}"
     
     def _create_prompt(self, query: str, context: str) -> str:
         """
@@ -171,29 +158,38 @@ class RAGAssistant:
         if verbose:
             print(f"\n🤖 Генерация ответа с помощью {self.model}...")
         
+        messages = [
+            {
+                "role": "system",
+                "content": SYSTEM_PROMPT,
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": SYSTEM_PROMPT,
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                temperature=self.temperature,
-                max_tokens=self.max_tokens
-            )
-            
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    temperature=self.temperature,
+                    max_completion_tokens=self.max_tokens
+                )
+            except Exception as e:
+                if "temperature" in str(e) and "Unsupported value" in str(e):
+                    response = self.client.chat.completions.create(
+                        model=self.model,
+                        messages=messages,
+                        max_completion_tokens=self.max_tokens
+                    )
+                else:
+                    raise
+
             # Извлекаем текст ответа
             answer = response.choices[0].message.content.strip()
-            
-            if search_results and "📎 Источники" not in answer and "Источники:" not in answer:
-                answer += self._build_sources_footer(search_results)
-            
+
             return answer, search_results
             
         except Exception as e:
